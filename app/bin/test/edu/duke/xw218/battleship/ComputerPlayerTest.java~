@@ -1,0 +1,57 @@
+package edu.duke.xw218.battleship;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Random;
+
+import org.junit.jupiter.api.Test;
+
+public class ComputerPlayerTest {
+  /**
+   * Create computer constructor
+   */
+  @Test
+  public void test_constructor() {
+    Board<Character> board = new BattleShipBoard<Character>(1, 1, 'X');
+    V2ShipFactory factory = new V2ShipFactory();
+    Player player = new ComputerPlayer("A", board, System.out, factory, new Random());
+    assertEquals("A", player.getName());
+  }
+
+  /**
+   * Test the placment of ship for computer player
+   */
+  @Test
+  public void test_do_placement() throws IOException {
+    Board<Character> board = new BattleShipBoard<Character>(7, 8, 'X');
+    V2ShipFactory factory = new V2ShipFactory();
+    Player player = new ComputerPlayer("A", board, System.out, factory, new Random());
+    player.doPlacementPhase(); // checkWhatIsAtBoard(player.getBoard(), expected, true);
+    String expectedHeader = "  0|1|2|3|4|5|6\n";
+    String expected_1 = expectedHeader + "A s|s|b|b|b|b|  A\n" + "B s|s| |b|b|b|b B\n" + "C d|d|d|b| | |  C\n"
+        + "D d|d|d|b|b| |  D\n" + "E d|d|d|b|c|c|c E\n" + "F  | |c|c|c|c|  F\n" + "G  |c|c|c|c| |  G\n"
+        + "H c|c|c| | | |  H\n" + expectedHeader;
+    assertEquals(expected_1, player.getView().displayMyOwnBoard());
+  }
+
+  @Test
+  public void test_play() throws IOException {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    PrintStream output = new PrintStream(bytes, false);
+    Board<Character> board = new BattleShipBoard<Character>(7, 8, 'X');
+    Board<Character> board2 = new BattleShipBoard<Character>(7, 8, 'X');
+    BoardTextView view = new BoardTextView(board2);
+    V2ShipFactory factory = new V2ShipFactory();
+    Player player = new ComputerPlayer("A", board, output, factory, new Random(1));
+    Player player2 = new ComputerPlayer("B", board, output, factory, new Random(1));
+    player.doPlacementPhase();
+    player2.doPlacementPhase();
+    player.playOneTurn(board, player2.getView());
+    assertEquals("Player A hit your carrier at E4!\n", bytes.toString());
+    assertEquals(true, player.playOneTurn(board, player2.getView()));
+  }
+}
+
